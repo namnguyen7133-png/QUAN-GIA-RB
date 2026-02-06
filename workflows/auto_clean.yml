@@ -13,6 +13,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Robot-Manager"
-          git add .
-          git commit -m "Robot da don dep xong" || exit 0
+          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/  # Thêm cụ thể các thư mục
+          git commit -m "Robot da don dep xong [skip ci]" || exit 0
           git push
+
