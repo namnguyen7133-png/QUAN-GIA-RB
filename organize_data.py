@@ -1,68 +1,80 @@
 import os
-import re
-import shutil
+import json
+import hashlib
 from datetime import datetime
+import shutil
 
-def robot_quan_gia_phuc_vu():
-    # --- PHẦN MỚI: KẾT NỐI VỚI NÃO BỘ CALENDAR ---
-    # Lấy chìa khóa ID lịch từ hệ thống GitHub Secrets mà bạn đã tạo
-    CALENDAR_ID = os.getenv('MY_CALENDAR_ID')
-    
-    # Lấy ngày hôm nay theo định dạng trong tên file của bạn (ví dụ: 08-02)
-    ngay_thang = datetime.now().strftime("%d-%m")
-    nam = datetime.now().strftime("%Y")
-    hom_nay_day_du = datetime.now().strftime("%d-%m-%Y")
+# ===== CẤU HÌNH BẤT BIẾN =====
+ALLOWED_FOLDERS = ['SUC_KHOE', 'CHAM_SOC_GIA_DINH', 'LAP_TRINH_ROBOT']
+DUPLICATE_LOG = 'duplicate_log.json'
+CALENDAR_LOG = 'calendar_event_log.json'
+SCAN_ROOT = '.'
 
-    print(f"🤖 Robot khởi động... Hôm nay là ngày: {hom_nay_day_du}")
-    
-    # Kiểm tra xem Robot có thấy lịch của bạn không
-    if CALENDAR_ID:
-        print(f"📅 NÃO BỘ ĐÃ KẾT NỐI: {CALENDAR_ID}")
-    else:
-        print("⚠️ CẢNH BÁO: Robot chưa thấy chìa khóa MY_CALENDAR_ID!")
 
-    # 1️⃣ TÌM VÀ MỞ TỆP CỦA NGÀY HÔM NAY
-    files = [f for f in os.listdir('.') if f.endswith('.html') and os.path.isfile(f)]
-    
-    found_today_file = False
-    for filename in files:
-        # Nếu tên file chứa ngày hôm nay (ví dụ: plan_08_02.html hoặc 08-02.html)
-        if ngay_thang in filename.replace('_', '-'):
-            print(f"✨ ĐÃ TÌM THẤY TỆP NHIỆM VỤ: {filename}")
-            with open(filename, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-                # Trích xuất phần thông báo/cách dùng trong tệp HTML
-                print("--- NỘI DUNG HƯỚNG DẪN HÔM NAY ---")
-                print(content[:500]) # Hiển thị 500 ký tự đầu tiên để bạn đọc
-                
-                if "đau lưng" in content.lower() or "thức đêm" in content.lower():
-                    print("\n🚨 CẢNH BÁO SỨC KHỎE: Tệp hôm nay nhắc bạn phải nghỉ ngơi vì ĐAU LƯNG!")
-            found_today_file = True
-            break
-    
-    if not found_today_file:
-        print(f"❓ Không tìm thấy tệp riêng cho ngày {ngay_thang}. Robot sẽ dọn dẹp chung.")
+def load_json(path):
+    if not os.path.exists(path):
+        return {}
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    # 2️⃣ TIẾN HÀNH DỌN DẸP VÀ PHÂN LOẠI
-    for folder in ['SUC_KHOE', 'CHAM_SOC_GIA_DINH', 'LAP_TRINH_ROBOT']:
+
+def save_json(path, data):
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+
+def hash_html(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def main():
+    print("🤖 Robot dedup HTML khởi động")
+
+    duplicate_log = load_json(DUPLICATE_LOG)
+    calendar_log = load_json(CALENDAR_LOG)
+
+    for folder in ALLOWED_FOLDERS:
         os.makedirs(folder, exist_ok=True)
 
-    for filename in files:
-        if filename in ['index.html', 'friends.csv']: continue 
-        
-        # Logic phân loại đơn giản vào SUC_KHOE
-        target_folder = 'SUC_KHOE'
-        new_name = f"{hom_nay_day_du}-DA_DOC-{filename}"
-        
-        try:
-            shutil.move(filename, os.path.join(target_folder, new_name))
-            print(f"✅ Đã dọn dẹp: {filename} -> {target_folder}")
-        except Exception as e:
-            print(f"❌ Lỗi khi dọn dẹp {filename}: {e}")
+    for filename in os.listdir(SCAN_ROOT):
+        if not filename.lower().endswith('.html'):
+            continue
+        if not os.path.isfile(filename):
+            continue
 
-    # --- PHẦN MỚI: XÁC NHẬN HOÀN THÀNH LÊN LỊCH ---
-    if CALENDAR_ID and found_today_file:
-        print(f"\n🚀 LỆNH CHO BOT: Đã sẵn sàng dữ liệu để ĐĂNG BÀI theo lịch {CALENDAR_ID}")
+        with open(filename, 'rb') as f:
+            content = f.read()
+
+        content_hash = hash_html(content)
+
+        # === CHECK TRÙNG ===
+        if content_hash in duplicate_log:
+            print(f"🔁 Trùng nội dung: {filename} → bỏ qua")
+            continue
+
+        # === FILE MỚI ===
+        now = datetime.now().isoformat()
+
+        duplicate_log[content_hash] = {
+            "filename": filename,
+            "first_seen": now
+        }
+
+        calendar_log.setdefault(content_hash, {
+            "status": "READY_FOR_CALENDAR",
+            "created_at": now
+        })
+
+        target_folder = ALLOWED_FOLDERS[0]  # mặc định, KHÔNG suy luận
+        shutil.move(filename, os.path.join(target_folder, filename))
+
+        print(f"✅ File mới: {filename} → {target_folder}")
+
+    save_json(DUPLICATE_LOG, duplicate_log)
+    save_json(CALENDAR_LOG, calendar_log)
+
+    print("🏁 Robot hoàn tất – không đụng mobile store – không ghi Calendar")
+
 
 if __name__ == "__main__":
-    robot_quan_gia_phuc_vu()
+    main()
