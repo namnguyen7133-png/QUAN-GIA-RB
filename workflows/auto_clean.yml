@@ -30,4 +30,5 @@ jobs:
           git config user.name "Robot-Manager"
           git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/ duplicate_log.json calendar_event_log.json
           git commit -m "Robot da don dep xong [skip ci]" || echo "no change"
-          git push
+          git push return 
+# rerun
