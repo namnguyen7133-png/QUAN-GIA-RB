@@ -5,12 +5,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write   # 👈 cho phép push
 
     steps:
       - name: Checkout
@@ -28,7 +28,6 @@ jobs:
         run: |
           git config user.email "action@github.com"
           git config user.name "Robot-Manager"
-          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/ duplicate_log.json calendar_event_log.json
+          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/ duplicate_log.json calendar_event_log.json || true
           git commit -m "Robot da don dep xong [skip ci]" || echo "no change"
-          git push return 
-# rerun
+          git push
