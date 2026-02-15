@@ -83,4 +83,38 @@ for i, file_path in enumerate(all_files, start=1):
     out_file.write_text(html_text, encoding="utf-8")
     count += 1
 
-print(f"✅ Generated {count} HTML test files in {OUT_DIR}")
+# ===== TẠO DASHBOARD INDEX =====
+index_items = []
+for f in sorted(OUT_DIR.glob("test_*.html")):
+    index_items.append(f'<li><a href="{f.name}" target="_blank">{f.name}</a></li>')
+
+index_html = f"""<!DOCTYPE html>
+<html lang=\"vi\">
+<head>
+<meta charset=\"UTF-8\" />
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+<title>HTML Test Dashboard</title>
+<style>
+body {{ font-family: system-ui, Arial; margin:40px; background:#f3f4f6 }}
+.card {{ background:white; padding:28px; border-radius:14px; box-shadow:0 4px 14px rgba(0,0,0,0.08) }}
+h1 {{ margin-top:0 }}
+ul {{ columns:3; -webkit-columns:3; -moz-columns:3 }}
+a {{ text-decoration:none; color:#2563eb }}
+a:hover {{ text-decoration:underline }}
+</style>
+</head>
+<body>
+<div class=\"card\">
+<h1>📊 HTML Test Dashboard</h1>
+<p>Tổng file: {count}</p>
+<ul>
+{''.join(index_items)}
+</ul>
+</div>
+</body>
+</html>
+"""
+
+(OUT_DIR / "index.html").write_text(index_html, encoding="utf-8")
+
+print(f"✅ Generated {count} HTML test files + dashboard in {OUT_DIR}")
