@@ -19,3 +19,11 @@ jobs:
           else
             echo "Khong tim thay organize_data.py"
           fi
+
+      - name: Commit logs + duplicates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add logs duplicates
+          git commit -m "auto clean" || echo "no changes"
+          git push
