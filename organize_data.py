@@ -4,26 +4,33 @@ import hashlib
 from datetime import datetime
 import shutil
 
-# ===== KHÓA CỨNG VÙNG CẤM =====
+# ===== VÙNG CHO PHÉP =====
 ALLOWED_FOLDERS = ['SUC_KHOE', 'CHAM_SOC_GIA_DINH', 'LAP_TRINH_ROBOT']
+
+# ===== VÙNG CẤM (mobile store) =====
 FORBIDDEN_KEYWORDS = ['mobile', 'store', 'appstore', 'playstore']
 
 DUPLICATE_LOG = 'duplicate_log.json'
 CALENDAR_LOG = 'calendar_event_log.json'
 
 
-def assert_safe_path(path: str):
+def is_forbidden(path: str) -> bool:
     p = path.lower()
-    for k in FORBIDDEN_KEYWORDS:
-        if k in p:
-            raise RuntimeError(f"⛔ VÙNG CẤM: {path}")
+    return any(k in p for k in FORBIDDEN_KEYWORDS)
+
+
+def is_allowed_folder(path: str) -> bool:
+    return any(path.startswith(f) for f in ALLOWED_FOLDERS)
 
 
 def load_json(path):
     if not os.path.exists(path):
         return {}
-    with open(path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
 
 
 def save_json(path, data):
@@ -48,26 +55,36 @@ def main():
     duplicate_log = load_json(DUPLICATE_LOG)
     calendar_log = load_json(CALENDAR_LOG)
 
+    # đảm bảo thư mục tồn tại
     for folder in ALLOWED_FOLDERS:
-        assert_safe_path(folder)
+        if is_forbidden(folder):
+            print(f"⛔ Bỏ qua thư mục cấm: {folder}")
+            continue
         os.makedirs(folder, exist_ok=True)
 
+    # quét file HTML ở root
     for filename in os.listdir('.'):
-        assert_safe_path(filename)
+        if is_forbidden(filename):
+            print(f"⛔ Bỏ qua vùng cấm: {filename}")
+            continue
 
         if not filename.lower().endswith('.html'):
             continue
         if not os.path.isfile(filename):
             continue
 
-        with open(filename, 'rb') as f:
-            content = f.read()
+        try:
+            with open(filename, 'rb') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"⚠️ Không đọc được {filename}: {e}")
+            continue
 
         content_hash = hash_html(content)
 
         # === CHECK TRÙNG ===
         if content_hash in duplicate_log:
-            print(f"🔁 Trùng nội dung: {filename} → bỏ qua")
+            print(f"🔁 Trùng: {filename}")
             continue
 
         now = datetime.now().isoformat()
@@ -83,17 +100,25 @@ def main():
         })
 
         status = calendar_readonly_status(content_hash, calendar_log)
-        print(f"📅 Calendar (read-only): {status}")
+        print(f"📅 Calendar: {status}")
 
+        # ===== CHỌN THƯ MỤC ĐÍCH =====
         target_folder = ALLOWED_FOLDERS[0]
-        shutil.move(filename, os.path.join(target_folder, filename))
 
-        print(f"✅ File mới: {filename} → {target_folder}")
+        if is_forbidden(target_folder):
+            print(f"⛔ Target bị cấm: {target_folder}")
+            continue
+
+        try:
+            shutil.move(filename, os.path.join(target_folder, filename))
+            print(f"✅ {filename} → {target_folder}")
+        except Exception as e:
+            print(f"⚠️ Move lỗi {filename}: {e}")
 
     save_json(DUPLICATE_LOG, duplicate_log)
     save_json(CALENDAR_LOG, calendar_log)
 
-    print("🏁 Hoàn tất – không ghi Calendar – không đụng mobile store")
+    print("🏁 Hoàn tất – không đụng mobile store")
 
 
 if __name__ == "__main__":
