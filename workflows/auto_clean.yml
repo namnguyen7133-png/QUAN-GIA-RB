@@ -2,27 +2,32 @@ name: Robot Tu Dong Don Dep
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+    permissions:
+      contents: write   # 👈 cho phép push
 
-      - uses: actions/setup-python@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      - name: Chay Robot
+      - name: Run robot
         run: python organize_data.py
 
-      - name: Luu thay doi
+      - name: Commit changes
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "Robot-Manager"
-          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/
-          git commit -m "Robot da don dep xong [skip ci]" || exit 0
+          git config user.email "action@github.com"
+          git config user.name "Robot-Manager"
+          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/ duplicate_log.json calendar_event_log.json
+          git commit -m "Robot da don dep xong [skip ci]" || echo "no change"
           git push
