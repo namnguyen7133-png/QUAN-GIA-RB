@@ -1,27 +1,21 @@
 name: Robot Tu Dong Don Dep
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Chay Robot
-        env:
-          MY_CALENDAR_ID: ${{ secrets.MY_CALENDAR_ID }}
         run: |
           if [ -f organize_data.py ]; then
             python organize_data.py
           else
-            echo "Khong tim thay tep organize_data.py"
+            echo "Khong tim thay organize_data.py"
           fi
-
-      - name: Luu thay doi
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "Robot-Manager"
-          git add .
-          git commit -m "Robot da don dep xong" || exit 0
-          git push
