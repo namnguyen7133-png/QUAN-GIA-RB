@@ -1,3 +1,18 @@
+import os
+import json
+from datetime import datetime
+
+# ===== cấu hình log =====
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+
+DUP_LOG = os.path.join(LOG_DIR, "duplicate_log.json")
+EVENT_LOG = os.path.join(LOG_DIR, "event_log.json")
+
+# ===== dữ liệu giả (nếu chưa có) =====
+duplicates = []
+moved = 0
+
 # ========= LOG JSON =========
 with open(DUP_LOG, "w", encoding="utf-8") as f:
     json.dump(duplicates, f, indent=2, ensure_ascii=False)
@@ -17,7 +32,7 @@ if os.path.exists(EVENT_LOG):
             loaded = json.load(f)
             if isinstance(loaded, list):
                 data = loaded
-    except:
+    except Exception:
         pass
 
 data.append(event)
