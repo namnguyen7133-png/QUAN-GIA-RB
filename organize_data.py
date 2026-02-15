@@ -2,44 +2,70 @@ import os
 import shutil
 import hashlib
 import json
+import csv
 from datetime import datetime
 
-# ===== CẤU HÌNH =====
+# ========= CẤU HÌNH =========
 ROOT_DIR = "."
+SCAN_EXT = (".html", ".md", ".txt", ".pdf")
+
 TARGET_DIRS = {
-    "SUC_KHOE": ["suc_khoe", "benh", "thuoc"],
-    "CHAM_SOC_GIA_DINH": ["gia_dinh", "tre_em", "me_be"],
-    "LAP_TRINH_ROBOT": ["robot", "code", "python", "ai"]
+    "SUC_KHOE": ["suc_khoe", "benh", "thuoc", "health", "medical"],
+    "CHAM_SOC_GIA_DINH": ["gia_dinh", "tre_em", "me_be", "family", "baby"],
+    "LAP_TRINH_ROBOT": ["robot", "code", "python", "ai", "automation"]
 }
+
+IGNORE_DIRS = [".git", "node_modules", "__pycache__"]
+IGNORE_FILES = ["duplicate_log.json", "calendar_event_log.json"]
 
 DUP_LOG = "duplicate_log.json"
 EVENT_LOG = "calendar_event_log.json"
+CSV_LOG = "robot_report.csv"
 
-# ===== HÀM TIỆN ÍCH =====
-def file_hash(path):
+# ========= HASH FILE (BLOCK) =========
+def file_hash(path, block_size=65536):
     h = hashlib.md5()
     with open(path, "rb") as f:
-        h.update(f.read())
+        while True:
+            data = f.read(block_size)
+            if not data:
+                break
+            h.update(data)
     return h.hexdigest()
 
-def classify(name):
-    n = name.lower()
+# ========= ĐỌC NỘI DUNG NHẸ =========
+def read_sample(path, size=2000):
+    try:
+        with open(path, "rb") as f:
+            return f.read(size).decode("utf-8", "ignore").lower()
+    except:
+        return ""
+
+# ========= PHÂN LOẠI =========
+def classify(path):
+    name = os.path.basename(path).lower()
+    text = read_sample(path)
+
     for folder, keys in TARGET_DIRS.items():
         for k in keys:
-            if k in n:
+            if k in name or k in text:
                 return folder
     return None
 
-# ===== THU THẬP FILE =====
+# ========= THU THẬP FILE =========
 files = []
-for root, _, fs in os.walk(ROOT_DIR):
-    if ".git" in root:
+
+for root, dirs, fs in os.walk(ROOT_DIR):
+    if any(ig in root for ig in IGNORE_DIRS):
         continue
+
     for f in fs:
-        if f.endswith(".html"):
+        if f in IGNORE_FILES:
+            continue
+        if f.lower().endswith(SCAN_EXT):
             files.append(os.path.join(root, f))
 
-# ===== PHÁT HIỆN TRÙNG =====
+# ========= PHÁT HIỆN TRÙNG =========
 hash_map = {}
 duplicates = []
 
@@ -57,25 +83,30 @@ for f in files:
     except:
         pass
 
-# ===== PHÂN LOẠI =====
+# ========= PHÂN LOẠI & MOVE =========
 moved = []
 
 for f in list(hash_map.values()):
+    target = classify(f)
+    if not target:
+        continue
+
     name = os.path.basename(f)
-    target = classify(name)
-    if target:
-        dest_dir = os.path.join(ROOT_DIR, target)
-        os.makedirs(dest_dir, exist_ok=True)
-        dest = os.path.join(dest_dir, name)
+    dest_dir = os.path.join(ROOT_DIR, target)
+    os.makedirs(dest_dir, exist_ok=True)
+    dest = os.path.join(dest_dir, name)
 
-        if not os.path.exists(dest):
-            shutil.move(f, dest)
-            moved.append({
-                "file": name,
-                "to": target
-            })
+    if os.path.abspath(f) == os.path.abspath(dest):
+        continue
 
-# ===== LOG =====
+    if not os.path.exists(dest):
+        shutil.move(f, dest)
+        moved.append({
+            "file": name,
+            "to": target
+        })
+
+# ========= LOG JSON =========
 with open(DUP_LOG, "w", encoding="utf-8") as f:
     json.dump(duplicates, f, indent=2, ensure_ascii=False)
 
@@ -98,4 +129,18 @@ data.append(event)
 with open(EVENT_LOG, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=2, ensure_ascii=False)
 
-print("Robot v2 done")
+# ========= CSV REPORT =========
+with open(CSV_LOG, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerow(["time", "duplicates", "moved_files"])
+    writer.writerow([
+        event["time"],
+        event["duplicates"],
+        len(event["moved"])
+    ])
+
+# ========= STATS =========
+print("Robot v3 done")
+print("Files scanned:", len(files))
+print("Duplicates removed:", len(duplicates))
+print("Moved:", len(moved))
