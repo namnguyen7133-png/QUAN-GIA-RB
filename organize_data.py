@@ -1,125 +1,101 @@
 import os
-import json
-import hashlib
-from datetime import datetime
 import shutil
+import hashlib
+import json
+from datetime import datetime
 
-# ===== VÙNG CHO PHÉP =====
-ALLOWED_FOLDERS = ['SUC_KHOE', 'CHAM_SOC_GIA_DINH', 'LAP_TRINH_ROBOT']
+# ===== CẤU HÌNH =====
+ROOT_DIR = "."
+TARGET_DIRS = {
+    "SUC_KHOE": ["suc_khoe", "benh", "thuoc"],
+    "CHAM_SOC_GIA_DINH": ["gia_dinh", "tre_em", "me_be"],
+    "LAP_TRINH_ROBOT": ["robot", "code", "python", "ai"]
+}
 
-# ===== VÙNG CẤM (mobile store) =====
-FORBIDDEN_KEYWORDS = ['mobile', 'store', 'appstore', 'playstore']
+DUP_LOG = "duplicate_log.json"
+EVENT_LOG = "calendar_event_log.json"
 
-DUPLICATE_LOG = 'duplicate_log.json'
-CALENDAR_LOG = 'calendar_event_log.json'
+# ===== HÀM TIỆN ÍCH =====
+def file_hash(path):
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        h.update(f.read())
+    return h.hexdigest()
 
+def classify(name):
+    n = name.lower()
+    for folder, keys in TARGET_DIRS.items():
+        for k in keys:
+            if k in n:
+                return folder
+    return None
 
-def is_forbidden(path: str) -> bool:
-    p = path.lower()
-    return any(k in p for k in FORBIDDEN_KEYWORDS)
+# ===== THU THẬP FILE =====
+files = []
+for root, _, fs in os.walk(ROOT_DIR):
+    if ".git" in root:
+        continue
+    for f in fs:
+        if f.endswith(".html"):
+            files.append(os.path.join(root, f))
 
+# ===== PHÁT HIỆN TRÙNG =====
+hash_map = {}
+duplicates = []
 
-def is_allowed_folder(path: str) -> bool:
-    return any(path.startswith(f) for f in ALLOWED_FOLDERS)
-
-
-def load_json(path):
-    if not os.path.exists(path):
-        return {}
+for f in files:
     try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
+        h = file_hash(f)
+        if h in hash_map:
+            duplicates.append({
+                "duplicate": f,
+                "original": hash_map[h]
+            })
+            os.remove(f)
+        else:
+            hash_map[h] = f
+    except:
+        pass
 
+# ===== PHÂN LOẠI =====
+moved = []
 
-def save_json(path, data):
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+for f in list(hash_map.values()):
+    name = os.path.basename(f)
+    target = classify(name)
+    if target:
+        dest_dir = os.path.join(ROOT_DIR, target)
+        os.makedirs(dest_dir, exist_ok=True)
+        dest = os.path.join(dest_dir, name)
 
+        if not os.path.exists(dest):
+            shutil.move(f, dest)
+            moved.append({
+                "file": name,
+                "to": target
+            })
 
-def hash_html(content: bytes) -> str:
-    return hashlib.sha256(content).hexdigest()
+# ===== LOG =====
+with open(DUP_LOG, "w", encoding="utf-8") as f:
+    json.dump(duplicates, f, indent=2, ensure_ascii=False)
 
+event = {
+    "time": datetime.utcnow().isoformat(),
+    "duplicates": len(duplicates),
+    "moved": moved
+}
 
-def calendar_readonly_status(content_hash, calendar_log):
-    info = calendar_log.get(content_hash)
-    if not info:
-        return "NOT_IN_CALENDAR"
-    return info.get("display_status", "UNKNOWN")
+if os.path.exists(EVENT_LOG):
+    try:
+        data = json.load(open(EVENT_LOG, encoding="utf-8"))
+    except:
+        data = []
+else:
+    data = []
 
+data.append(event)
 
-def main():
-    print("🤖 Robot dedup HTML khởi động")
+with open(EVENT_LOG, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
 
-    duplicate_log = load_json(DUPLICATE_LOG)
-    calendar_log = load_json(CALENDAR_LOG)
-
-    # đảm bảo thư mục tồn tại
-    for folder in ALLOWED_FOLDERS:
-        if is_forbidden(folder):
-            print(f"⛔ Bỏ qua thư mục cấm: {folder}")
-            continue
-        os.makedirs(folder, exist_ok=True)
-
-    # quét file HTML ở root
-    for filename in os.listdir('.'):
-        if is_forbidden(filename):
-            print(f"⛔ Bỏ qua vùng cấm: {filename}")
-            continue
-
-        if not filename.lower().endswith('.html'):
-            continue
-        if not os.path.isfile(filename):
-            continue
-
-        try:
-            with open(filename, 'rb') as f:
-                content = f.read()
-        except Exception as e:
-            print(f"⚠️ Không đọc được {filename}: {e}")
-            continue
-
-        content_hash = hash_html(content)
-
-        # === CHECK TRÙNG ===
-        if content_hash in duplicate_log:
-            print(f"🔁 Trùng: {filename}")
-            continue
-
-        now = datetime.now().isoformat()
-
-        duplicate_log[content_hash] = {
-            "filename": filename,
-            "first_seen": now
-        }
-
-        calendar_log.setdefault(content_hash, {
-            "display_status": "READY",
-            "created_at": now
-        })
-
-        status = calendar_readonly_status(content_hash, calendar_log)
-        print(f"📅 Calendar: {status}")
-
-        # ===== CHỌN THƯ MỤC ĐÍCH =====
-        target_folder = ALLOWED_FOLDERS[0]
-
-        if is_forbidden(target_folder):
-            print(f"⛔ Target bị cấm: {target_folder}")
-            continue
-
-        try:
-            shutil.move(filename, os.path.join(target_folder, filename))
-            print(f"✅ {filename} → {target_folder}")
-        except Exception as e:
-            print(f"⚠️ Move lỗi {filename}: {e}")
-
-    save_json(DUPLICATE_LOG, duplicate_log)
-    save_json(CALENDAR_LOG, calendar_log)
-
-    print("🏁 Hoàn tất – không đụng mobile store")
-
-
-if __name__ == "__main__":
-    main()
+print("Robot v2 done")
