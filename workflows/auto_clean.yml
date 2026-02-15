@@ -1,19 +1,28 @@
 name: Robot Tu Dong Don Dep
+
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
       - name: Chay Robot
         run: python organize_data.py
+
       - name: Luu thay doi
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "Robot-Manager"
-          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/  # Thêm cụ thể các thư mục
+          git add SUC_KHOE/ CHAM_SOC_GIA_DINH/ LAP_TRINH_ROBOT/
           git commit -m "Robot da don dep xong [skip ci]" || exit 0
           git push
-
