@@ -1,17 +1,3 @@
 {
-  "system_info": {
-    "project_name": "QUAN-GIA-RB",
-    "owner": "Nam Nguyễn",
-    "last_sync": "2026-04-28 17:15:00"
-  },
-  "pushed_history": [
-    {
-      "id": "init_000",
-      "timestamp": "2026-04-28 17:15:00",
-      "account": "System",
-      "age_group": "None",
-      "content": "Khởi tạo hệ thống Quản gia RB",
-      "status": "success"
-    }
-  ]
+  "pushed_history": []
 }
