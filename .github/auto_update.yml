@@ -1,0 +1,31 @@
+name: Auto Update JSON Log
+on:
+  workflow_dispatch:
+    inputs:
+      account:
+        description: 'Account'
+      index:
+        description: 'Index'
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Update Script
+        run: |
+          python -c "
+          import json, datetime
+          path = 'notifier_central.json'
+          with open(path, 'r', encoding='utf-8') as f: data = json.load(f)
+          entry = {'timestamp': datetime.datetime.now().strftime('%Y-%m-%d %H:%M'), 'account': '${{ github.event.inputs.account }}', 'index': '${{ github.event.inputs.index }}'}
+          data['pushed_history'].append(entry)
+          data['pushed_history'] = data['pushed_history'][-100:]
+          with open(path, 'w', encoding='utf-8') as f: json.dump(data, f, ensure_ascii=False, indent=2)
+          "
+      - name: Commit and Push
+        run: |
+          git config --global user.name "Bot Ghi So"
+          git config --global user.email "bot@github.com"
+          git add notifier_central.json
+          git commit -m "Update log for ${{ github.event.inputs.account }}"
+          git push
