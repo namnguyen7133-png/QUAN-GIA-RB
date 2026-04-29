@@ -1,16 +1,21 @@
 {
   "notifications": [
-    {
-      "time": "05:30",
-      "message": "Kiểm tra Bot Shopee: Hãy kiểm tra trạng thái 32 shop persona sáng nay."
-    },
-    {
-      "time": "11:30",
-      "message": "Báo cáo Affiliate: Xuất dữ liệu CSV từ GitHub Actions gửi cho vợ."
-    },
-    {
-      "time": "11:30",
-      "message": "Thông báo trùng giờ: Tin nhắn này sẽ được gửi sau 5 phút (11:35)."
-    }
+    { "time": "05:30", "title": "🤖 BOT SHOPEE", "message": "Kiểm tra 32 shop persona sáng nay." },
+    { "time": "08:00", "title": "💼 CÔNG VIỆC", "message": "Bắt đầu ca làm việc 1 - Kiểm tra Bot" },
+    { "time": "08:00", "title": "💼 CÔNG VIỆC", "message": "Kiểm tra email khách hàng" },
+    { "time": "08:33", "title": "🔔 TIN NHẮN", "message": "Tin nhắn số 1" },
+    { "time": "08:33", "title": "🔔 TIN NHẮN", "message": "Tin nhắn số 2" },
+    { "time": "08:50", "title": "🍳 ĂN SÁNG", "message": "Đã đến giờ ăn sáng rồi bạn ơi!" },
+    { "time": "09:00", "title": "📅 HỌP SÁNG", "message": "Kiểm tra hệ thống bot Shopee" },
+    { "time": "10:30", "title": "🔗 GITHUB", "message": "Kiểm tra hệ thống tự động từ file JSON" },
+    { "time": "10:45", "title": "📅 HỌP SÁNG", "message": "Nội dung thông báo từ GitHub" },
+    { "time": "11:30", "title": "📊 AFFILIATE", "message": "Xuất CSV từ GitHub Actions gửi cho vợ." },
+    { "time": "12:00", "title": "☕ NGHỈ TRƯA", "message": "Đã đến giờ nghỉ ngơi." },
+    { "time": "14:00", "title": "📝 NHẮC VIỆC", "message": "Cập nhật báo cáo Affiliate Shopee" },
+    { "time": "14:30", "title": "💻 HỌP ONLINE", "message": "Họp online nhóm Quản Gia" },
+    { "time": "15:00", "title": "📈 BÁO CÁO", "message": "Đã đến giờ gửi báo cáo ngày" }
+  ],
+  "pushed_history": [
+    { "timestamp": "2026-04-29 10:44", "shop": "Shop_01" }
   ]
 }
