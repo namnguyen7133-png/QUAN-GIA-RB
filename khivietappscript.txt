@@ -1,0 +1,21 @@
+danhsachten chứa danh sách tên
+hom_qua 32  cột từ C1 , hom_nay 32 cột từ C1, ngay_mai 32  cột từ C1 chứa số thứ tự của thời gian trong ngày từ 0:01 tới 23:59, 28:59. và các phép tính MOD , INT cho các số của từng người với thời gian
+sodacbiet chứa các số đặc biệt để so sánh trong cột A1:A 
+nhac_nho tổng hợp các thông báo ra.
+viết mã thì không đưa code từng đoạn đưa toàn bộ đã sửa , không vá víu code mất thời gian làm lại sửa lỗi,
+HÃY BẢO TÔI ĐƯA MÃ RỒI GHÉP VÀO HOẶC SỬA TOÀN BỘ NHÉ
+chỉ quét tại sheet tổng hợp tên là nhac_nho 
+token trong thuộc tính tập lệnh : PUSHBULLET_TOKEN
+phải gửi ra pushbullet tên sheet tài khoản,token github
+"E:\AFFILIATE chuyen nghiep\tk_github.txt"
+gửi cả số bé nhất từ 2 trở xuống cùng tên danh sách,
+viết gọn công thức trong 1 dòng thôi,
+các bảng chỉ từ 1 đến 10 dòng hoạc 20 dòng là nhiều,
+gửi theo phân phối tránh trùng lặp giờ của https://github.com/namnguyen7133-png/QUAN-GIA-RB/blob/main/notifier_central.json nhé, 
+tự ghi vào json đây https://github.com/namnguyen7133-png/QUAN-GIA-RB/blob/main/.github/auto_update.yml
+không đúng rồi nếu thấy trùng giờ với cái khác thì sẽ cộng thêm vào 5 phút sau để gửi nếu đến giờ phải gửi chứ chống trùng gửi cùng lúc cùng giờ cùng phút thôi tức là xếp hàng chứ lại thấy trùng thì bỏ không gửi nữa là hỏng ,
+ viết thêm thì bảo viết thêm mới còn sửa lại thì bảo sửa  cái cũ không dùng thì bảo xóa ngay.
+viết mã kiểm tra toàn bộ app script trong sheet đi xóa cái nào xóa đi tôi không xóa tay đâu
+nếu lỗi gửi liên tục thoát ngay không để bị cấm truy cập,
+làm việc với công thức google sheet thì dấu phẩy là dấu chấm phẩy nhé, 
+dấu chấm tiền tệ là dấu phẩy nhé
