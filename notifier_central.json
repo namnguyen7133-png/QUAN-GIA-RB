@@ -1,14 +1,16 @@
-[
-  {
-    "gio": 5,
-    "phut": 30,
-    "tieuDe": "Kiểm tra Bot Shopee",
-    "noiDung": "Hãy kiểm tra trạng thái 32 shop persona sáng nay."
-  },
-  {
-    "gio": 11,
-    "phut": 30,
-    "tieuDe": "Báo cáo Affiliate",
-    "noiDung": "Xuất dữ liệu CSV từ GitHub Actions gửi cho vợ."
-  }
-]
+{
+  "notifications": [
+    {
+      "time": "05:30",
+      "message": "Kiểm tra Bot Shopee: Hãy kiểm tra trạng thái 32 shop persona sáng nay."
+    },
+    {
+      "time": "11:30",
+      "message": "Báo cáo Affiliate: Xuất dữ liệu CSV từ GitHub Actions gửi cho vợ."
+    },
+    {
+      "time": "11:30",
+      "message": "Thông báo trùng giờ: Tin nhắn này sẽ được gửi sau 5 phút (11:35)."
+    }
+  ]
+}
