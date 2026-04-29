@@ -1,3 +1,14 @@
-{
-  "pushed_history": []
-}
+[
+  {
+    "gio": 5,
+    "phut": 30,
+    "tieuDe": "Kiểm tra Bot Shopee",
+    "noiDung": "Hãy kiểm tra trạng thái 32 shop persona sáng nay."
+  },
+  {
+    "gio": 11,
+    "phut": 30,
+    "tieuDe": "Báo cáo Affiliate",
+    "noiDung": "Xuất dữ liệu CSV từ GitHub Actions gửi cho vợ."
+  }
+]
