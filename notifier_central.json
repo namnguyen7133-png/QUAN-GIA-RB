@@ -8,22 +8,20 @@
     {
       "time": "08:00",
       "title": "💼 CÔNG VIỆC",
-      "message": "Bắt đầu ca làm việc 1 - Kiểm tra Bot"
-    },
-    {
-      "time": "08:00",
-      "title": "💼 CÔNG VIỆC",
-      "message": "Kiểm tra email khách hàng"
-    },
-    {
-      "time": "08:33",
-      "title": "🔔 TIN NHẮN",
-      "message": "Tin nhắn số 1"
+      "message": [
+        "Bắt đầu ca làm việc 1 - Kiểm tra Bot",
+        "Kiểm tra email khách hàng"
+      ]
     },
     {
       "time": "08:33",
       "title": "🔔 TIN NHẮN",
-      "message": "Tin nhắn số 2 (Sẽ báo sau 5 phút)"
+      "message": [
+        "Tin nhắn số 1",
+        "Tin nhắn số 2 (Sẽ báo sau 5 phút)",
+        "Nội dung 1",
+        "Sẽ báo sau 5 phút"
+      ]
     },
     {
       "time": "08:50",
@@ -48,12 +46,10 @@
     {
       "time": "11:30",
       "title": "📊 AFFILIATE",
-      "message": "Xuất CSV từ GitHub gửi cho vợ."
-    },
-    {
-      "time": "11:30",
-      "title": "⚠️ TIN TRÙNG",
-      "message": "Tôi sẽ báo sau 5 phút vì trùng giờ 11:30."
+      "message": [
+        "Xuất CSV từ GitHub gửi cho vợ.",
+        "Tôi sẽ báo sau 5 phút vì trùng giờ 11:30."
+      ]
     },
     {
       "time": "12:00",
