@@ -73,9 +73,28 @@
     }
   ],
   "pushed_history": [
-    {
-      "timestamp": "2026-04-29 10:44",
-      "shop": "Shop_01"
+    {[
+  {
+    "time": "09:00",
+    "title": "☕ Chào buổi sáng",
+    "message": "Anh Nam nhớ kiểm tra máy photo và nạp giấy nhé!"
+  },
+  {
+    "time": "10:30",
+    "title": "💧 Ngũ hành: Nước",
+    "message": "Đến giờ nạp năng lượng hệ Thủy, anh uống một ly nước nhé."
+  },
+  {
+    "time": "10:30",
+    "title": "⚠️ Trùng giờ",
+    "message": "Thông báo này sẽ tự động đợi 5 phút (đến 10:35) mới nổ chuông."
+  },
+  {
+    "time": "14:00",
+    "title": "🎬 Phụ đề phim",
+    "message": "Hệ thống nhắc anh kiểm tra tiến độ dịch phim cho kênh Review."
+  }
+]
     }
   ]
 }
