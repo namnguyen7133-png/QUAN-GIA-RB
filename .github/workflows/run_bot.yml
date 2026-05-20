@@ -30,3 +30,12 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       run: python locdlvaduasheet.py
+
+    # --- ĐOẠN THÊM MỚI: TỰ ĐỘNG ĐẨY FILE LOG LÊN GIAO DIỆN DƯỚI CÙNG ---
+    - name: Lưu trữ tệp Log lịch sử chạy
+      if: always() # Luôn luôn chạy bước này kể cả code Python có bị lỗi hay thành công
+      uses: actions/upload-artifact@v4
+      with:
+        name: nhat-ky-thoi-tiet-log
+        path: thoitiet_log.txt
+        retention-days: 7 # Lưu trữ file log này trong vòng 7 ngày trên GitHub
