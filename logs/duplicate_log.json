@@ -1,7 +1,1 @@
-[
-  {
-    "type": "hash",
-    "file": "./calendar_event_log.json",
-    "duplicate_of": "./duplicate_log.json"
-  }
-]
+[]
