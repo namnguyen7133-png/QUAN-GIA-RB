@@ -1,7 +1,7 @@
 [
   {
     "type": "hash",
-    "file": "./duplicate_log.json",
-    "duplicate_of": "./calendar_event_log.json"
+    "file": "./calendar_event_log.json",
+    "duplicate_of": "./duplicate_log.json"
   }
 ]
