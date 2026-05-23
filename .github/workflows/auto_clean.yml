@@ -1,0 +1,29 @@
+name: Robot Tu Dong Don Dep
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Chay Robot
+        run: |
+          if [ -f organize_data.py ]; then
+            python organize_data.py
+          else
+            echo "Khong tim thay organize_data.py"
+          fi
+
+      - name: Commit logs + duplicates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add logs duplicates
+          git commit -m "auto clean" || echo "no changes"
+          git push
