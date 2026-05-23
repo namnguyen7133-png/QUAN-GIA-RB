@@ -1,0 +1,13 @@
+{
+  "da_xu_ly": [],
+  "dang_cho": [
+    {
+      "hash": "2039c0e77721d2eebb74dbbaf2449ba1",
+      "file": "/home/runner/work/QUAN-GIA-RB/QUAN-GIA-RB/locdlvaduasheet.py",
+      "dong": 194,
+      "loai": "sqlite3.OperationalError",
+      "chi_tiet": "no such column: temperature_2m_min",
+      "thoi_gian": "2026-05-23T12:23:11.023433"
+    }
+  ]
+}
