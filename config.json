@@ -1,8 +1,5 @@
 {
-  "DB_PATH": "D:/LICH/THOITIET/THOITIET.db",
-  "JSON_OUTPUT": "D:/SUA LOI GITHUB SHEET PYTHON/deepseek/data/thoitiet_hom_nay.json",
-  "LOG_DIR": "D:/SUA LOI GITHUB SHEET PYTHON/deepseek/logs",
-  "SLACK_WEBHOOK_FILE": "D:/APP SCRIPT/SLACK_WEBHOOK_URL.txt",
-  "PUSHBULLET_TOKEN_FILE": "D:/APP SCRIPT/PUSHBULLET_TOKEN.txt",
-  "GITHUB_TOKEN_FILE": "D:/APP SCRIPT/GITHUB_TOKEN.txt"
+  "DB_PATH": "THOITIET.db",
+  "JSON_OUTPUT": "data/thoitiet_hom_nay.json",
+  "LOG_DIR": "logs"
 }
