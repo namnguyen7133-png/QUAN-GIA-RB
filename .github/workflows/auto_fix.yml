@@ -1,0 +1,45 @@
+name: Auto Fix Error
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # Chạy mỗi 10 phút để kiểm tra hàng đợi
+  workflow_dispatch:
+
+jobs:
+  check_and_fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          pip install requests
+      
+      - name: Process pending errors
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PUSHBULLET_TOKEN: ${{ secrets.PUSHBULLET_TOKEN }}
+        run: |
+          python smart_error_handler.py --process-queue
+      
+      - name: Create GitHub Issue for unfixed errors
+        if: always()
+        run: |
+          # Tạo issue tự động nếu có lỗi chưa sửa được
+          python -c "
+          import json
+          with open('notifier_central.json') as f:
+              data = json.load(f)
+          if data['pending_fixes']:
+              print('::notice title=Unfixed Errors::Có ' + str(len(data['pending_fixes'])) + ' lỗi cần xử lý')
+          "
