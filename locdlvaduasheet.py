@@ -73,7 +73,7 @@ def da_co_ngay(sheet, ngay):
         return False
 
 # =========================================================
-# LAY DU LIEU SQLITE
+# LAY DU LIEU SQLITE (ĐÃ ĐƯỢC FIX LỖI TỰ ĐỘNG DÒ CỘT)
 # =========================================================
 def lay_du_lieu():
     conn = sqlite3.connect(DB_PATH)
@@ -81,13 +81,44 @@ def lay_du_lieu():
     hom_nay = datetime.date.today()
     ngay_2007 = f"2007-{hom_nay.strftime('%m-%d')}"
 
-    query = """
+    # Lấy danh sách toàn bộ các cột thực tế đang có trong bảng để đối chiếu
+    cursor.execute("PRAGMA table_info(THOITIET_DINH_DUONG);")
+    cac_cot_co_san = [row[1] for row in cursor.fetchall()]
+    
+    if not cac_cot_co_san:
+        raise Exception("Bang THOITIET_DINH_DUONG khong ton tai hoac khong co du lieu.")
+
+    # 1. Tự động tìm tên cột Nhiệt độ thấp nhất
+    cot_min = "temperature_2m_min"
+    for c in ["temperature_2m_min", "nhiet_do_min", "min_temp", "temperature_min", "t_min"]:
+        if c in cac_cot_co_san:
+            cot_min = c
+            break
+
+    # 2. Tự động tìm tên cột Nhiệt độ cao nhất
+    cot_max = "temperature_2m_max"
+    for c in ["temperature_2m_max", "nhiet_do_max", "max_temp", "temperature_max", "t_max"]:
+        if c in cac_cot_co_san:
+            cot_max = c
+            break
+
+    # 3. Tự động tìm tên cột Lượng mưa
+    cot_rain = "rain_sum"
+    for c in ["rain_sum", "luong_mua", "rain", "mua_sum", "rain_fall"]:
+        if c in cac_cot_co_san:
+            cot_rain = c
+            break
+
+    # Tạo câu lệnh SQL động gọi chính xác tên các cột tìm được
+    query = f"""
         SELECT
-            *
-           rain_sum
+            {cot_min},
+            {cot_max},
+            {cot_rain}
         FROM THOITIET_DINH_DUONG
         WHERE time = ?
     """
+    
     cursor.execute(query, (ngay_2007,))
     row = cursor.fetchone()
     conn.close()
@@ -96,12 +127,14 @@ def lay_du_lieu():
         raise Exception(f"Khong tim thay du lieu cua ngay {ngay_2007} trong bang THOITIET_DINH_DUONG")
 
     t_min, t_max, rain = row
+    
+    # Ép kiểu dữ liệu về dạng float/int để phòng lỗi định dạng khi tính toán/hiển thị
     return {
         "ngay_xem": hom_nay.strftime("%d/%m/%Y"),
         "ngay_2007": ngay_2007,
-        "t_min": t_min,
-        "t_max": t_max,
-        "rain": rain
+        "t_min": float(t_min) if t_min is not None else 0.0,
+        "t_max": float(t_max) if t_max is not None else 0.0,
+        "rain": float(rain) if rain is not None else 0.0
     }
 
 def tao_goi_y(data):
