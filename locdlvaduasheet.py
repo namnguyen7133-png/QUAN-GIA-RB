@@ -83,8 +83,8 @@ def lay_du_lieu():
 
     query = """
         SELECT
-            temperature_2m_min,
-            temperature_2m_max,
+            *
+            *
             rain_sum
         FROM THOITIET_DINH_DUONG
         WHERE time = ?
