@@ -84,8 +84,7 @@ def lay_du_lieu():
     query = """
         SELECT
             *
-            *
-            rain_sum
+           rain_sum
         FROM THOITIET_DINH_DUONG
         WHERE time = ?
     """
